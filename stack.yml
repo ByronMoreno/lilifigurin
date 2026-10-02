@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    image: ghcr.io/byronmoreno/lilifigurin:latest
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.lilifigurin.entrypoints=http"
+        - "traefik.http.routers.lilifigurin.rule=Host(`lili.byronrm.com`)"
+        - "traefik.http.middlewares.lilifigurin-https-redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.lilifigurin.middlewares=lilifigurin-https-redirect"
+        - "traefik.http.routers.lilifigurin-secure.entrypoints=https"
+        - "traefik.http.routers.lilifigurin-secure.rule=Host(`lili.byronrm.com`)"
+        - "traefik.http.routers.lilifigurin-secure.tls=true"
+        - "traefik.http.routers.lilifigurin-secure.tls.certresolver=http"
+        - "traefik.http.routers.lilifigurin-secure.service=lilifigurin"
+        - "traefik.http.services.lilifigurin.loadbalancer.server.port=80"
+        - "traefik.docker.network=traefik-public"
+
+networks:
+  traefik-public:
+    external: true
